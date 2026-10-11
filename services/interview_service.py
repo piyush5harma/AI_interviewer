@@ -1,6 +1,6 @@
 import uuid
 
-from models.interview import Answer, InterviewSession
+from models.interview import Answer, InterviewSession, InterviewStatusEnum
 from store.session_store import SESSION_STORE
 
 

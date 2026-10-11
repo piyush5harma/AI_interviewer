@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 
 from models.interview import InterviewStatusEnum
-from request_model import AnswerRequest
+from request_model.AnswerRequest import AnswerRequest
+from response_model.AnswerResponse import AnswerResponse
 from services.interview_service import create_session, get_session, save_answer
 
 router = APIRouter(
@@ -24,9 +25,19 @@ async def start_interview():
         "firstQuestion": session.questions[0]
     }
 
-@router.post("/submit")
+@router.post("/submit", response_model=AnswerResponse)
 async def submit_answer(answerReq: AnswerRequest):
     session= get_session(answerReq.session_id)
     if not session or session.status== InterviewStatusEnum.COMPLETED:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview session not found")
     save_answer(answerReq.answer,answerReq.skip,session)
+
+    if session.status==InterviewStatusEnum.COMPLETED:
+        return {
+            "interviewEnded": True
+        }
+
+    return{
+        "interviewEnded":False,
+        "nextQuestion": session.questions[session.current_index]
+    }
