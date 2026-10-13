@@ -41,3 +41,24 @@ async def submit_answer(answerReq: AnswerRequest):
         "interviewEnded":False,
         "nextQuestion": session.questions[session.current_index]
     }
+
+@router.put("/end/{session_id}")
+async def end_interview(session_id: str):
+    session= get_session(session_id)
+    if not session or session.status== InterviewStatusEnum.COMPLETED:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview session not found")
+
+    session.status=InterviewStatusEnum.COMPLETED
+    return {
+                "interviewEnded": True
+            }
+
+@router.get("/report/{session_id}")
+async def report(session_id:str):
+      session= get_session(session_id)
+      if not session or session.status== InterviewStatusEnum.COMPLETED:
+                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview session not found")
+
+      return{
+            "result": "Your interview report"
+      }

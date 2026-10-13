@@ -14,7 +14,7 @@ def create_session()-> InterviewSession:
     return interview_session
 
 def get_session(session_id:str)->InterviewSession:
-    session=SESSION_STORE[session_id]
+    session=SESSION_STORE.get(session_id)
 
     if not session:
         return None
