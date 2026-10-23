@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
+from AI_INTERVIEW_SERVICE.services.ai_service import generate_questions_intro
+from AI_INTERVIEW_SERVICE.util.file_util import validate_file, extract_text
 from models.interview import InterviewStatusEnum
 from request_model.AnswerRequest import AnswerRequest
 from response_model.AnswerResponse import AnswerResponse
@@ -9,7 +11,21 @@ router = APIRouter(
     prefix="/interview",
     tags=["Interview"]
 )
+@router.post("/generate-question")
+async def generate_questions(
+    job_title: str = Form(...),
+    job_description: str = Form(...),
+    resume: UploadFile = File(...)
+):
+      await validate_file(resume)
+      resume_text=await extract_text(resume)
 
+      resp = await generate_questions_intro(job_title=job_title, job_description=job_description, resume_text=resume_text)
+
+      session = create_session()
+      session.questions = resp.get("questions")
+      session.introText = resp.get("introText")
+      
 @router.get("/start")
 async def start_interview():
     questions=[
@@ -17,8 +33,7 @@ async def start_interview():
         "what is javascript",
         "what is inheritance?"
     ]
-    session=create_session()
-    session.questions=questions
+    
     return {
         "introText":"Hey Piyush welcome to ai interview platform",
         "session_id":session.session_id,

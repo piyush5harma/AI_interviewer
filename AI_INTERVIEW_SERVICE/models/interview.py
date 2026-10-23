@@ -19,5 +19,6 @@ class InterviewSession(BaseModel):
     status: InterviewStatusEnum= InterviewStatusEnum.IN_PROGRESS
     answers: list[Answer]=[]
     current_index: int=0
+    introText: str
 
    
